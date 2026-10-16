@@ -1,0 +1,26 @@
+title: Wiki Coolab
+description: Documentação da Coolab — redes comunitárias, LibreMesh/LibreRouter, energia solar offgrid e serviços locais.
+# Para publicar em domínio próprio (ex.: wiki.coolab.org), troque para: baseurl: ""
+baseurl: "/wiki"
+url: ""
+github_repo: https://github.com/coolabnet/wiki
+
+markdown: kramdown
+
+collections:
+  wiki:
+    output: true
+
+defaults:
+  - scope:
+      path: ""
+      type: "wiki"
+    values:
+      layout: page
+
+exclude:
+  - tools
+  - LocalSettings.php
+  - LICENSE
+  - README.md
+  - .gitignore

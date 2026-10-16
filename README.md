@@ -1,58 +1,67 @@
-# Wiki Coolab — dump da wiki.coolab.org
+# Wiki Coolab
 
-Este repositório contém um dump completo do conteúdo da wiki
-[wiki.coolab.org](https://wiki.coolab.org), uma instância de
-**MediaWiki 1.34.1** chamada "Wiki Coolab" (idioma `pt-br`).
+Documentação da [Coolab](https://coolab.org) — redes comunitárias, LibreMesh/LibreRouter, energia solar offgrid e serviços locais.
 
-## Conteúdo
+Este repositório contém o conteúdo da antiga **wiki.coolab.org** (MediaWiki 1.34.1), convertido para **Markdown** e publicado como site estático com **Jekyll** (GitHub Pages). Além do site, o dump bruto original também fica preservado aqui.
 
-| Caminho                  | Descrição                                                                 |
-| ------------------------ | ------------------------------------------------------------------------- |
-| `dump/wiki-dump-full.xml.gz` | Export XML do MediaWiki (`dumpBackup.php --full --uploads`): **395 páginas, 2434 revisões** e metadados de 68 arquivos enviados. |
-| `images/`                | Arquivos enviados (uploads) da wiki, no layout de diretórios do MediaWiki (`images/<hash>/...`), incluindo `thumb/` (miniaturas regeneráveis), `archive/` (versões antigas) e `deleted/` (arquivos apagados). |
-| `LocalSettings.php`      | Cópia da configuração da wiki para referência, com os segredos (`$wgDBpassword`, `$wgSecretKey`, `$wgUpgradeKey`) **removidos**. |
+## Estrutura
 
-## Como restaurar
+| Caminho | Descrição |
+| --- | --- |
+| `_wiki/*.md` | **Conteúdo da wiki** (uma página por arquivo Markdown). É aqui que você edita. |
+| `index.md` | Página inicial (portal com índice de todas as páginas). |
+| `_layouts/`, `_config.yml`, `assets/` | Tema/configuração do site Jekyll. |
+| `images/` | Arquivos enviados (uploads) da wiki original, no layout do MediaWiki. |
+| `dump/wiki-dump-full.xml.gz` | Export XML bruto do MediaWiki (395 páginas, 2434 revisões). |
+| `LocalSettings.php` | Configuração original da wiki (segredos removidos). |
+| `tools/convert_wiki.py` | Script que converte o dump XML em `_wiki/*.md`. |
 
-Para recriar a wiki a partir deste dump:
+## Como editar
 
-1. **Instale o MediaWiki 1.34.x** (a mesma versão garante compatibilidade total).
-   O dump também importa em versões mais novas; se necessário, rode
-   `php maintenance/update.php` depois da importação.
+Edite os arquivos Markdown em `_wiki/` diretamente pelo GitHub (botão *"Editar"* / *pencil*). Ao salvar, o GitHub Pages reconstrói o site automaticamente.
 
-2. **Configure o banco e o `LocalSettings.php`**:
-   use `LocalSettings.php` deste repositório como base e preencha os valores
-   redactados (`$wgDBpassword`, `$wgSecretKey`, `$wgUpgradeKey`) e ajuste
-   `$wgDBserver`/`$wgDBname`/`$wgDBuser` para o seu ambiente.
+- **Criar uma página nova**: adicione um arquivo `_wiki/minha-pagina.md` com:
 
-3. **Copie as imagens** para o diretório de uploads da nova instalação:
-   ```bash
-   cp -r images/* /caminho/do/mediawiki/images/
-   chown -R www-data:www-data /caminho/do/mediawiki/images
-   ```
+  ```markdown
+  ---
+  title: "Minha Página"
+  layout: page
+  permalink: /minha-pagina/
+  ---
 
-4. **Importe o XML** (páginas, histórico e metadados dos uploads):
-   ```bash
-   cd /caminho/do/mediawiki
-   php maintenance/importDump.php --uploads dump/wiki-dump-full.xml.gz
-   ```
+  Conteúdo em Markdown…
+  ```
 
-5. **Finalize** (opcional, para índices/estatísticas consistentes):
-   ```bash
-   php maintenance/rebuildrecentchanges.php
-   php maintenance/initSiteStats.php
-   php maintenance/runJobs.php
-   ```
+  Ela aparece automaticamente na barra lateral e no índice da página inicial.
 
-> As extensões usadas pela wiki original (`Translate`, `Babel`, `Scribunto`,
-> `SimpleMathJax`, `UniversalLanguageSelector`, `CleanChanges`, `cldr`,
-> `LocalisationUpdate` e `MarkdownExtraParser`) precisam ser instaladas
-> separadamente para que o conteúdo seja renderizado de forma idêntica; o
-> texto bruto das páginas, porém, está preservado neste dump independentemente
-> das extensões.
+- **Adicionar imagens**: coloque o arquivo em `images/` e referencie assim:
+  `![legenda]({{ "/images/nome-do-arquivo.jpg" | relative_url }})`
+
+- **Fórmulas**: use `\( … \)` para LaTeX inline (renderizado por MathJax).
+
+## Publicação
+
+- O site é publicado pelo **GitHub Pages** a partir da branch `main`.
+- URL padrão: `https://coolabnet.github.io/wiki/` (por isso `baseurl: "/wiki"` no `_config.yml`).
+- Para usar um domínio próprio (ex.: `wiki.coolab.org`), troque `baseurl` para `""` no `_config.yml` e configure o domínio nas settings do Pages.
+
+## Rodando localmente
+
+Com Docker:
+
+```bash
+docker run --rm -p 4000:4000 -v "$PWD:/srv/jekyll" jekyll/jekyll:pages jekyll serve
+# abra http://localhost:4000/wiki/
+```
+
+## Regenerar a partir do dump
+
+O conteúdo Markdown foi gerado a partir do dump XML:
+
+```bash
+python3 tools/convert_wiki.py
+```
 
 ## Origem
 
-Dump gerado em 2026-10-16 a partir do VPS `vps-coolab`
-(`/mnt/coolab_hd/coolab-server/wiki.coolab.org`), com o banco MariaDB do
-container `wikicoolaborg-wiki_database-1`.
+Dump gerado em 2026-10-16 a partir do VPS `vps-coolab` (MediaWiki 1.34.1, banco MariaDB `wikiupdate`). Extensões originais: `Translate`, `Babel`, `Scribunto`, `SimpleMathJax`, `UniversalLanguageSelector`, `CleanChanges`, `cldr`, `LocalisationUpdate` e `MarkdownExtraParser` (o texto bruto das páginas foi preservado independentemente delas).

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ site.description }}">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <input type="search" id="search" placeholder="Buscar páginas…" aria-label="Buscar páginas">
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar" aria-label="Navegação">
+      <ul id="page-list">
+        {% assign pages = site.wiki | sort: 'title' %}
+        {% for p in pages %}
+        <li><a href="{{ p.url | relative_url }}"{% if page.url == p.url %} class="active"{% endif %}>{{ p.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <main class="content">
+      {{ content }}
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <p>Conteúdo licenciado sob <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a>.</p>
+  </footer>
+
+  <script>
+    (function () {
+      var input = document.getElementById('search');
+      var items = Array.prototype.slice.call(document.querySelectorAll('#page-list li'));
+      input.addEventListener('input', function () {
+        var q = input.value.toLowerCase();
+        items.forEach(function (li) {
+          li.style.display = li.textContent.toLowerCase().indexOf(q) === -1 ? 'none' : '';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
